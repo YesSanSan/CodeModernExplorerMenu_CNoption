@@ -1,6 +1,7 @@
 改了一点自用，效果如图，可以在win11右键一级菜单里使用VScode
 <br>
-<img src="https://guiguisocute-1318017707.cos.ap-guangzhou.myqcloud.com/20251003230218172.png"/>
+<img width="319" height="372" alt="Image_2026-01-10_15-02-07_waxy2nub qr0" src="https://github.com/user-attachments/assets/1047404b-e3ba-4b87-b009-62593bd56cc4" />
+
 
 
 #### 吐槽
