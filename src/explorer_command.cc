@@ -50,7 +50,7 @@ namespace {
         wchar_t pathBuffer[MAX_PATH];
         
         // 1. 尝试从 PATH 环境变量获取
-        if (SearchPathW(NULL, L"Code.exe", NULL, MAX_PATH, pathBuffer, NULL)) {
+        if (SearchPathW(NULL, L"code", NULL, MAX_PATH, pathBuffer, NULL)) {
             std::filesystem::path p(pathBuffer);
             
             // 核心修正：如果是 Scoop 的垫片路径 (...\scoop\shims\code.exe)
