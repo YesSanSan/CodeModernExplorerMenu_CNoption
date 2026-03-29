@@ -1,3 +1,9 @@
+#### 变更
+修改了硬编码的 VSCode 路径，使其从 PATH 中查找 code 命令
+
+***
+> 以下为源仓库README原文
+
 改了一点自用，效果如图，可以在win11右键一级菜单里使用VScode
 <br>
 <img width="319" height="372" alt="Image_2026-01-10_15-02-07_waxy2nub qr0" src="https://github.com/user-attachments/assets/1047404b-e3ba-4b87-b009-62593bd56cc4" />
