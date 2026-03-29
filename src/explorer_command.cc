@@ -49,8 +49,8 @@ namespace {
     std::filesystem::path GetVSCodeExecutablePath() {
         // 1. 尝试在 PATH 环境变量中搜索 (适合 Scoop, PATH 注册版)
         wchar_t pathBuffer[MAX_PATH];
-        // EXE_NAME 通常定义为 L"Code.exe"
-        DWORD result = SearchPathW(NULL, EXE_NAME, NULL, MAX_PATH, pathBuffer, NULL);
+        // 将 EXE_NAME 转换为 path，然后调用 c_str() 获取符合 SearchPathW 要求的宽字符指针
+        DWORD result = SearchPathW(NULL, std::filesystem::path(EXE_NAME).c_str(), NULL, MAX_PATH, pathBuffer, NULL);
         
         if (result > 0 && result < MAX_PATH) {
             return std::filesystem::path(pathBuffer);
