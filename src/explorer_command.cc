@@ -61,6 +61,12 @@ namespace {
                 if (std::filesystem::exists(realPath)) {
                     return realPath;
                 }
+            } else if (p.wstring().find(L"scoop\\apps") != std::wstring::npos) {
+                // Scoop 结构: 从 scoop/apps/vscode/current/bin/code 到 scoop/apps/vscode/current/Code.exe
+                auto realPath = p.parent_path().parent_path() / L"Code.exe";
+                if (std::filesystem::exists(realPath)) {
+                    return realPath;
+                }
             }
             // 如果不是 shim，或者是其他方式加入 path 的，直接返回
             return p;
