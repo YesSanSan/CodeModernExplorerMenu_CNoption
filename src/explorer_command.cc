@@ -47,28 +47,38 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE instance,
 namespace {
 
     std::filesystem::path GetVSCodeExecutablePath() {
-        // 1. 尝试在 PATH 环境变量中搜索 (适合 Scoop, PATH 注册版)
         wchar_t pathBuffer[MAX_PATH];
-        // 将 EXE_NAME 转换为 path，然后调用 c_str() 获取符合 SearchPathW 要求的宽字符指针
-        DWORD result = SearchPathW(NULL, std::filesystem::path(EXE_NAME).c_str(), NULL, MAX_PATH, pathBuffer, NULL);
         
-        if (result > 0 && result < MAX_PATH) {
-            return std::filesystem::path(pathBuffer);
+        // 1. 尝试从 PATH 环境变量获取
+        if (SearchPathW(NULL, L"Code.exe", NULL, MAX_PATH, pathBuffer, NULL)) {
+            std::filesystem::path p(pathBuffer);
+            
+            // 核心修正：如果是 Scoop 的垫片路径 (...\scoop\shims\code.exe)
+            // 垫片没有图标，且启动不稳定，我们需要跳转到真实的 binary
+            if (p.wstring().find(L"scoop\\shims") != std::wstring::npos) {
+                // Scoop 结构: 从 shims 目录往上退一级，再进到 apps\vscode\current
+                auto realPath = p.parent_path().parent_path() / L"apps\\vscode\\current\\Code.exe";
+                if (std::filesystem::exists(realPath)) {
+                    return realPath;
+                }
+            }
+            // 如果不是 shim，或者是其他方式加入 path 的，直接返回
+            return p;
         }
 
-        // 2. 如果 PATH 没找到，尝试原有的“相对于 DLL”的逻辑
-        try {
-            std::filesystem::path module_path{ wil::GetModuleFileNameW<std::wstring>(wil::GetModuleInstanceHandle()) };
-            // 向上退两级查找 (假设 DLL 在 bin 或某个子目录下)
-            auto probe_path = module_path.parent_path().parent_path() / DIR_NAME / EXE_NAME;
-            if (std::filesystem::exists(probe_path)) {
-                return probe_path;
+        // 2. 备选方案：直接探测 Scoop 在用户目录下的默认安装位置 (无需依赖 PATH)
+        wchar_t* userProfile = nullptr;
+        size_t sz = 0;
+        if (_wdupenv_s(&userProfile, &sz, L"USERPROFILE") == 0 && userProfile) {
+            std::filesystem::path scoopDefault = std::filesystem::path(userProfile) / L"scoop\\apps\\vscode\\current\\Code.exe";
+            free(userProfile);
+            if (std::filesystem::exists(scoopDefault)) {
+                return scoopDefault;
             }
-        } catch (...) {}
+        }
 
-        // 3. 最后保底：硬编码路径 (官方安装版默认位置)
-        std::filesystem::path fallback_path = std::filesystem::path(L"C:\\Program Files") / DIR_NAME / EXE_NAME;
-        return fallback_path;
+        // 3. 官方安装版默认路径 (使用宏定义)
+        return std::filesystem::path(L"C:\\Program Files") / DIR_NAME / EXE_NAME;
     }
 
   // Extracted from
